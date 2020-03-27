@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import * as sharedb from 'sharedb';
 
 @Component({
   selector: 'app-root',
