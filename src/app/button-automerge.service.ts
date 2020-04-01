@@ -28,14 +28,15 @@ export class ButtonAutomergeService {
   constructor() {
     const self = this;
 
+    // I want to release lock when session closes and also after a certain amount of time.
   //  this.testAutoMerge();
 
     this.socket.subscribe({
       next(response) {
-        console.log(response);
+        console.log('Receiving text');
         if (response.hasOwnProperty('response')) {
-          console.log(response.response);
-          self.changeText(response.response);
+        //  console.log(response['response']);
+          self.changeText(response['response']);
         }
       },
       error(err) {
@@ -49,47 +50,6 @@ export class ButtonAutomergeService {
     });
    }
 
-  public testAutoMerge() {
-    this.doc1 = automerge.change(this.doc1, 'Add card', doc => {
-      doc.cards.push({ title: 'Rewrite everything in Clojure', done: false });
-    });
-
-    this.doc1 = automerge.change(this.doc1, 'Add another card', doc => {
-      doc.cards.insertAt(0, { title: 'Rewrite everything in Haskell', done: false });
-    });
-
-    this.doc2 = automerge.merge(this.doc2, this.doc1);
-
-    if (this.doc1.hasOwnProperty('cards') && this.doc2.hasOwnProperty('cards')) {
-      console.log(this.doc1.cards);
-      console.log(this.doc1.cards[0]);
-
-      console.log('DOC 2');
-      console.log(this.doc2['cards']);
-    }
-
-    this.doc1 = automerge.change(this.doc1, 'Mark card as done', doc => {
-      doc.cards[0].done = true;
-    });
-
-    this.doc2 = automerge.change(this.doc2, 'Delete card', doc => {
-      if (doc.hasOwnProperty('cards')) {
-        doc['cards'][0].done = false;
-      }
-    });
-
-    this.finalDoc = automerge.merge(this.doc1, this.doc2);
-
-
-    // FIgure out how this conflicts works
-    // console.log('CONFLICTS', automerge.getConflicts(this.doc2, 'cards'));
-
-
-    console.log(this.finalDoc['cards']);
-    // console.log('save', automerge.save(this.finalDoc));
-    console.log(automerge.getHistory(this.finalDoc).map(state => [state.change.message, state.snapshot['cards'].length]));
-  }
-
   public executeCommand(newText) {
     const command: Command = {
       execute: () => this.sendText(newText)
@@ -98,11 +58,12 @@ export class ButtonAutomergeService {
   }
 
   private sendText(newText) {
-    const newDoc = automerge.change(this.testDoc, 'Changing text doc', doc => {
+    this.testDoc = automerge.change(this.testDoc, 'Changing text doc', doc => {
       doc.text = newText;
     });
 
-    const serialized = automerge.save(newDoc);
+    console.log('sending text!');
+    const serialized = automerge.save(this.testDoc);
     this.socket.next(serialized);
   }
 
@@ -111,6 +72,10 @@ export class ButtonAutomergeService {
     this.testDoc = automerge.load(newObject);
 
   //  this.sendText(newText);
+  }
+
+  public closeConnection() {
+    this.socket.complete();
   }
 
   public getText() {

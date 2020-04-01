@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {ButtonChangeService} from '../button-change.service';
 import { ButtonAutomergeService } from '../button-automerge.service';
 import { YjsServerService } from '../yjs-server.service';
+import { LockService } from '../lock.service';
+
 @Component({
   selector: 'app-main-body',
   templateUrl: './main-body.component.html',
@@ -11,9 +13,16 @@ export class MainBodyComponent implements OnInit {
 
   constructor(public buttonChangeService: ButtonChangeService,
               public buttonAutoMerge: ButtonAutomergeService,
-              public yjsService: YjsServerService) { }
+              public yjsService: YjsServerService,
+              public lockService: LockService) { }
 
   ngOnInit() {
+  }
+
+  public performCommand(newText) {
+    if (this.lockService.getLock()) {
+      this.buttonAutoMerge.executeCommand(newText);
+    }
   }
 
 

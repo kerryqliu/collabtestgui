@@ -3,8 +3,14 @@
 
 <h1>{{buttonAutoMerge.getText()}}</h1>
 <div class='buttons'>
-  <button (click)="buttonAutoMerge.executeCommand('hello')">Test1</button>
+  <button (click)="performCommand('hello')">hello</button>
 
-  <button (click)="buttonAutoMerge.executeCommand('bye')">Test2</button>
+  <button (click)="performCommand('bye')">bye</button>
+
+  <button (click)="buttonAutoMerge.closeConnection()">close</button>
 </div>
 
+<button (click)="lockService.toggleLock()">Toggle Lock</button>
+
+<p *ngIf="lockService.getLock()">We have the lock!</p>
+<p *ngIf="!lockService.getLock()">We don't have the lock:(</p>
