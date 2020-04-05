@@ -8,9 +8,10 @@
   <button (click)="performCommand('bye')">bye</button>
 
   <button (click)="buttonAutoMerge.closeConnection()">close</button>
+
+  <button (click)="buttonAutoMerge.toggleLock()">Toggle Lock</button>
 </div>
 
-<button (click)="lockService.toggleLock()">Toggle Lock</button>
 
-<p *ngIf="lockService.getLock()">We have the lock!</p>
-<p *ngIf="!lockService.getLock()">We don't have the lock:(</p>
+<p *ngIf="buttonAutoMerge.getLock()">We have the lock!</p>
+<p *ngIf="!buttonAutoMerge.getLock()">We don't have the lock:(</p>

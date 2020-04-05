@@ -90,7 +90,7 @@ export class ButtonChangeService {
 
   private normalSocket = new WebSocket('ws://localhost:8080/test');
 
-  //private sharedbConnection = new sharedb.Connection(this.normalSocket);
+  // private sharedbConnection = new sharedb.Connection(this.normalSocket);
 
   constructor() {
     const self = this;

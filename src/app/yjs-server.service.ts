@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as yjs from 'yjs';
+import * as automerge from 'automerge';
 import { WebsocketProvider } from 'y-websocket/src/y-websocket.js';
 
 
@@ -8,39 +9,60 @@ import { WebsocketProvider } from 'y-websocket/src/y-websocket.js';
 })
 export class YjsServerService {
 
+  private doc1 = automerge.from({ text: 'Nothing'});
+
+  private doc2 = automerge.from({ text: 'Nothing'});
 
   //try out the websocket next
-  private doc = new yjs.Doc();
-  private displayedText = 'Nothing';
   // can first try update listener and just log when one client makes a change
   // private wsProvider = new WebsocketProvider('ws://localhost:1234', 'my-roomname', this.doc);
   constructor() {
+    // THIS WORKS!
+    this.testAutomerge('hello', 'bye');
 
-  //  this.wsProvider.on('status', event => {
-  //    console.log(event); // logs "connected" or "disconnected"
-  //  });
 
-  //  this.wsProvider.on('update', event => {
-  //    console.log('event');
-  //    console.log('DOC UPDATED');
-  //  });
+  }
 
-    const doc1 = new yjs.Doc();
-    const doc2 = new yjs.Doc();
-
-    doc1.on('update', update => {
-      yjs.applyUpdate(doc2, update);
+  private testAutomerge(newText, blah) {
+    this.doc1 = automerge.change(this.doc1, 'Changing text doc', doc => {
+      doc.text = newText;
     });
 
-    doc2.on('update', update => {
-      yjs.applyUpdate(doc1, update);
+    this.doc1 = automerge.change(this.doc1, 'Changing text doc', doc => {
+      doc.text = newText;
     });
 
-// All changes are also applied to the other document
-    doc1.getArray('myarray').insert(0, ['Hello doc2, you got this?']);
-    console.log(doc2.getArray('myarray').get(0)); // => 'Hello doc2, you got this?'
-    console.log(doc1.getArray('myarray').get(0));
-    this.doc.getArray('testarray').insert(0, ['hi']);
+    this.doc1 = automerge.change(this.doc1, 'Changing text doc', doc => {
+      doc.text = newText;
+    });
 
+    this.doc1 = automerge.change(this.doc1, 'Changing text doc', doc => {
+      doc.text = newText;
+    });
+
+    this.doc1 = automerge.change(this.doc1, 'Changing text doc', doc => {
+      doc.text = newText;
+    });
+
+    this.doc1 = automerge.change(this.doc1, 'Changing text doc', doc => {
+      doc.text = newText;
+    });
+
+    const data1 = automerge.getChanges(automerge.init(), this.doc1);
+    console.log(data1);
+    // this.doc2 = automerge.applyChanges(automerge.init(), JSON.parse(data1));
+
+    this.doc2 = automerge.applyChanges(automerge.init(), JSON.parse(JSON.stringify(data1)));
+
+    console.log('TEST1', this.doc1.text, this.doc2.text);
+    const node2update = automerge.change(this.doc2, 'Changing text doc', doc => {
+      doc.text = blah;
+    });
+
+    const data2 = JSON.stringify(automerge.getChanges(this.doc2, node2update));
+
+    const final = automerge.applyChanges(this.doc1, JSON.parse(data2));
+
+    console.log('FINAL', final.text, node2update.text);
   }
 }
